@@ -14,9 +14,8 @@ class VideoPlayer {
         this.video = null;
 
         const playerElement = document.getElementById(divId);
-        console.log(playerElement);
 
-        if (playerElement == null) {
+        if (playerElement === null) {
             console.error("Cannot construct video player within null element");
             return;
         }
@@ -28,12 +27,28 @@ class VideoPlayer {
         this.video.height = height;
 
         playerElement.appendChild(this.video);
+
+        this.video.addEventListener('play', function(evt) {
+            this.isPlaying = true;
+            this.hasEnded = false;
+        });
+
+        this.video.addEventListener('pause', function(evt) {
+            this.isPlaying = false;
+            this.hasEnded = false;
+        });
+
+        this.video.addEventListener('ended', function(evt) {
+            this.isPlaying = false;
+            this.hasEnded = true;
+        });
+
     }
 
     /**
      * Sets the video element src as the file path
      * 
-     * @param {string} filePath url of mp4 file to be loaded
+     * @param {string} filePath - url of mp4 file to be loaded
      */
     load(filePath) {
         this.video.src =  filePath;
@@ -53,11 +68,60 @@ class VideoPlayer {
         this.video.pause();
     }
 
+    /**
+     * Resizes video element to width and height desired in pixels
+     * 
+     * @param {number} width - desired width of video element in pixels
+     * @param {number} height - desired height of video element in pixels
+     */
     resize(width, height) {
         this.width = width;
         this.height = height;
+        this.video.width = width;
+        this.video.height = height;
     }
 
+    getHeight() {
+        return this.height;
+    }
+
+    getWidth() {
+        return this.width;
+    }
+
+    setAutoplay(autoplay) {
+        this.video.autoplay = autoplay;
+    }
+
+    setVolume(volume) {
+        this.video.volume = Math.floor(volume / 100.0);
+    }
+
+    getVolume() {
+        return this.video.volume;
+    }
+
+    setMute(mute) {
+        this.video.muted = mute;
+    }
+
+    getMute() {
+        return this.video.muted;
+    }
+
+    getDuration() {
+        return this.video.duration;
+    }
+
+    setFullscreen(fullscreen) {
+        this.video.fullscreen = fullscreen;
+    }
+
+    getPlaybackState() {
+        if (this.video.hasEnded) return "ended";
+        if (this.video.isPlaying) return "playing";
+        return "paused";
+    }
 }
 
 
@@ -65,4 +129,8 @@ let player = new VideoPlayer("video-container", 1000, 600);
 const sampleVideo = "http://techslides.com/demos/sample-videos/small.mp4";
 
 player.load(sampleVideo);
-player.play();
+player.setVolume(50);
+
+setInterval(() => {
+    console.log(player.getPlaybackState());
+}, 200);
